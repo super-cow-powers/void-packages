@@ -6,7 +6,7 @@ archs="i686 x86_64 ppc64"
 depends="virtual?java-environment giflib libXtst hicolor-icon-theme"
 BUILD_JANSI=0
 
-#Some Archs require fsnotifier built from source
+#Some Archs require parts built from source
 case $XBPS_TARGET_MACHINE in
     ppc64)
 	BUILD_JANSI=1
