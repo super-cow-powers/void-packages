@@ -1,0 +1,32 @@
+# Template file for 'intellij-fsnotifier'
+pkgname="intellij-fsnotifier"
+version=2021.1
+revision=1
+
+hostmakedepends="wget"
+short_desc="Source package for IntelliJ's File Watcher"
+maintainer="David <dm1306@york.ac.uk>"
+license="Apache-2.0"
+homepage="https://github.com/JetBrains/intellij-community/tree/master/native/fsNotifier/linux"
+
+SRC_FILES="fsnotifier.h inotify.c main.c util.c"
+BUILD_SCRIPT="make.sh"
+RAW_GIT_URL="https://raw.githubusercontent.com/JetBrains/intellij-community/master/native/fsNotifier/linux/"
+
+do_fetch() {
+    for src_file in $SRC_FILES
+    do
+	wget -P"${wrksrc}" "${RAW_GIT_URL}${src_file}"
+    done
+    wget -P"${wrksrc}" "${RAW_GIT_URL}${BUILD_SCRIPT}"
+}
+
+do_build() {
+    chmod +x "${wrksrc}/${BUILD_SCRIPT}"
+    ${wrksrc}/${BUILD_SCRIPT}
+}
+
+do_install() {
+    vmkdir usr/lib/intellij-idea/fsnotifier
+    vinstall ${wrksrc}/fsnotifier 555 usr/lib/intellij-idea/fsnotifier
+}

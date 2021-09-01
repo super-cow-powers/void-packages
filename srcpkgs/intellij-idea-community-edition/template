@@ -2,8 +2,16 @@
 pkgname=intellij-idea-community-edition
 version=2021.1
 revision=1
-archs="i686 x86_64"
+archs="i686 x86_64 ppc64"
 depends="virtual?java-environment giflib libXtst hicolor-icon-theme"
+#Some Archs require fsnotifier built from source
+case $XBPS_TARGET_MACHINE in
+    ppc*)
+        depends+=" intellij-fsnotifier"
+	makedepends+="git"
+	;;
+esac
+
 short_desc="Java integrated development environment by JetBrains"
 maintainer="John <me@johnnynator.dev>"
 license="Apache-2.0"
@@ -18,7 +26,16 @@ skiprdeps="/usr/lib/intellij-idea/plugins/Kotlin/bin/linux/LLDBFrontend"
 post_extract() {
 	mv $XBPS_BUILDDIR/idea-IC-* ${wrksrc}
 }
-
+pre_install(){
+    case $XBPS_TARGET_MACHINE in
+	ppc64)
+	    #Build native Jansi lib
+	    git clone "https://github.com/fusesource/jansi.git" ${wrksrc}/jansi
+	    cd "${wrksrc}/jansi"
+	    make clean-native native OS_NAME=Linux OS_ARCH=ppc64
+	    ;;
+    esac
+}
 do_install() {
 	vmkdir usr/bin
 	vmkdir usr/share/doc/intellij-idea
@@ -56,6 +73,24 @@ do_install() {
 		rm ${DESTDIR}/usr/lib/intellij-idea/lib/pty4j-native/linux/ppc64le -rf
 		rm ${DESTDIR}/usr/lib/intellij-idea/plugins/webp/lib/libwebp/linux/libwebp_jni64.so
 		rm ${DESTDIR}/usr/lib/intellij-idea/plugins/maven/lib/maven3/lib/jansi-native/linux64 -rf
+		;;
+		ppc64) #For PPC build, we're following FreeBSD's Port
+		    #Remove x86_64/ARM Files
+		    rm ${DESTDIR}/usr/lib/intellij-idea/bin/fsnotifier
+		    rm ${DESTDIR}/usr/lib/intellij-idea/bin/fsnotifier64
+		    rm ${DESTDIR}/usr/lib/intellij-idea/bin/libdbm64.so
+		    rm -rf ${DESTDIR}/usr/lib/intellij-idea/bin/idea.vmoptions
+		    rm -rf ${DESTDIR}/usr/lib/intellij-idea/lib/pty4j-native/
+		    rm -rf ${DESTDIR}/usr/lib/intellij-idea/plugins/performanceTesting/bin/
+		    rm -rf ${DESTDIR}/usr/lib/intellij-idea/plugins/android/lib/libwebp/
+	            rm -rf ${DESTDIR}/usr/lib/intellij-idea/plugins/Kotlin/bin/linux/
+		    rm -rf ${DESTDIR}/usr/lib/intellij-idea/plugins/cwm-plugin/quiche-native/
+		    rm -rf ${DESTDIR}/usr/lib/intellij-idea/plugins/maven/lib/maven3/lib/jansi-native/linux32/
+		    rm -rf ${DESTDIR}/usr/lib/intellij-idea/plugins/webp/*
+		    #Replace jansi native lib
+		    cp ${wrksrc}/jansi/target/native-Linux-ppc64/libjansi.so ${DESTDIR}/usr/lib/intellij-idea/plugins/maven/lib/maven3/lib/jansi-native/linux64/libjansi.so
+		    #Replace fsnotifier
+	            echo "idea.filewatcher.executable.path=usr/lib/intellij-idea/fsnotifier/fsnotifier" >> ${DESTDIR}/usr/lib/intellij-idea/bin/idea.properties
 		;;
 	esac
 
