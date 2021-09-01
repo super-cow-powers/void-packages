@@ -78,7 +78,7 @@ do_install() {
 		rm ${DESTDIR}/usr/lib/intellij-idea/plugins/webp/lib/libwebp/linux/libwebp_jni64.so
 		rm ${DESTDIR}/usr/lib/intellij-idea/plugins/maven/lib/maven3/lib/jansi-native/linux64 -rf
 		;;
-		ppc64) #For PPC build, we're following FreeBSD's Port
+		ppc64)
 		    #Remove x86_64/ARM Files
 		    rm ${DESTDIR}/usr/lib/intellij-idea/bin/fsnotifier
 		    rm ${DESTDIR}/usr/lib/intellij-idea/bin/fsnotifier64
