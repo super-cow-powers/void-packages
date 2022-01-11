@@ -3,10 +3,20 @@ pkgname=pcre2
 version=10.39
 revision=1
 build_style=gnu-configure
-configure_args="--with-pic --enable-pcre2-16 --enable-pcre2-32
---enable-pcre2test-libreadline --enable-pcre2grep-libz --enable-pcre2grep-libbz2
---enable-newline-is-anycrlf --enable-jit --enable-static"
+
+#JIT is currently broken on PPC64
+if [ "$XBPS_MACHINE" = "ppc64" ]; then
+    configure_args="--with-pic --enable-pcre2-16 --enable-pcre2-32
+   --enable-pcre2test-libreadline --enable-pcre2grep-libz --enable-pcre2grep-libbz2
+   --enable-newline-is-anycrlf --enable-static"
+else
+    configure_args="--with-pic --enable-pcre2-16 --enable-pcre2-32
+   --enable-pcre2test-libreadline --enable-pcre2grep-libz --enable-pcre2grep-libbz2
+   --enable-newline-is-anycrlf --enable-jit --enable-static"
+fi
+
 hostmakedepends="automake libtool"
+
 makedepends="zlib-devel bzip2-devel readline-devel"
 short_desc="Perl Compatible Regular Expressions (2nd version)"
 maintainer="Enno Boland <gottox@voidlinux.org>"
